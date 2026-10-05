@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>期限管理</title>
+    <!-- iPhoneアプリ化するための設定 -->
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icon.png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, sans-serif; padding: 20px; background: #f2f2f7; margin: 0; }
+        h2 { font-size: 20px; color: #333; margin-top: 10px; }
+        .input-group { background: white; padding: 15px; border-radius: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); margin-bottom: 20px; }
+        input { width: 100%; padding: 12px; margin-bottom: 10px; border-radius: 8px; border: 1px solid #ddd; font-size: 16px; box-sizing: border-box; }
+        button { width: 100%; padding: 14px; background: #007aff; color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer; }
+        button:active { background: #005bb5; }
+        ul { list-style: none; padding: 0; margin: 0; }
+        li { background: white; padding: 15px; border-radius: 12px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .task-info { display: flex; flex-direction: column; width: 75%; }
+        .task-name { font-size: 17px; font-weight: 600; color: #000; margin-bottom: 4px; word-wrap: break-word; }
+        .task-date { font-size: 14px; color: #ff3b30; font-weight: 500; }
+        .done-btn { background: #e5e5ea; color: #007aff; width: auto; padding: 10px 15px; border-radius: 20px; font-size: 14px; }
+    </style>
+</head>
+<body>
+    <h2>⏳ いつまでにやる？</h2>
+    
+    <div class="input-group">
+        <input type="text" id="task" placeholder="例：市役所に書類を出す">
+        <input type="datetime-local" id="deadline">
+        <button onclick="addTask()">追加する</button>
+    </div>
+
+    <ul id="list"></ul>
+
+    <script>
+        function loadTasks() {
+            const tasks = JSON.parse(localStorage.getItem('deadlineTasks') || '[]');
+            // 期限が近い順に並び替え
+            tasks.sort((a, b) => new Date(a.deadline) - new Date(b.deadline));
+            
+            const list = document.getElementById('list');
+            list.innerHTML = '';
+            
+            tasks.forEach((t, index) => {
+                const dateObj = new Date(t.deadline);
+                const dateStr = `${dateObj.getMonth()+1}月${dateObj.getDate()}日 ${String(dateObj.getHours()).padStart(2, '0')}:${String(dateObj.getMinutes()).padStart(2, '0')}`;
+                
+                list.innerHTML += `
+                    <li>
+                        <div class="task-info">
+                            <span class="task-name">${t.text}</span>
+                            <span class="task-date">期限: ${dateStr}</span>
+                        </div>
+                        <button class="done-btn" onclick="deleteTask(${index})">完了</button>
+                    </li>
+                `;
+            });
+        }
+
+        function addTask() {
+            const text = document.getElementById('task').value;
+            const deadline = document.getElementById('deadline').value;
+            
+            if (!text || !deadline) {
+                alert('内容と期限の両方を入力してください。');
+                return;
+            }
+
+            const tasks = JSON.parse(localStorage.getItem('deadlineTasks') || '[]');
+            tasks.push({ text, deadline });
+            localStorage.setItem('deadlineTasks', JSON.stringify(tasks));
+            
+            document.getElementById('task').value = '';
+            document.getElementById('deadline').value = '';
+            loadTasks();
+        }
+
+        function deleteTask(index) {
+            const tasks = JSON.parse(localStorage.getItem('deadlineTasks') || '[]');
+            tasks.splice(index, 1);
+            localStorage.setItem('deadlineTasks', JSON.stringify(tasks));
+            loadTasks();
+        }
+
+        window.onload = loadTasks;
+    </script>
+</body>
+</html>
