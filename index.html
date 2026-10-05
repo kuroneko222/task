@@ -8,7 +8,6 @@
     <link rel="apple-touch-icon" href="icon.png">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
-    <!-- アイコン用フォント -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root {
@@ -23,55 +22,67 @@
             --tag-school-txt: #0066ff;
             --tag-other-bg: #f2f2f7;
             --tag-other-txt: #5c5c66;
+            --tag-teams-bg: #ebeeff;
+            --tag-teams-txt: #464eb8;
+            --tag-sapotal-bg: #e6f4ea;
+            --tag-sapotal-txt: #1e8e3e;
         }
 
         body { font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", "Segoe UI", sans-serif; background-color: var(--bg); margin: 0; padding: 0; color: var(--text-main); }
         
-        /* ヘッダー周り */
         .header { display: flex; justify-content: space-between; align-items: center; padding: 20px; padding-top: 40px; }
         .header-title h1 { margin: 0; font-size: 24px; font-weight: 800; }
         .header-title p { margin: 4px 0 0; font-size: 13px; color: var(--text-sub); }
         .add-btn { background: #eef2ff; color: var(--primary); border: none; width: 44px; height: 44px; border-radius: 50%; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
 
-        /* リスト周り */
         .task-list { padding: 0 20px 30px; display: flex; flex-direction: column; gap: 12px; }
-        .task-card { background: var(--card-bg); border-radius: 16px; padding: 16px; display: flex; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.02); border: 1px solid #f0f0f0; transition: 0.2s; }
+        .task-card { background: var(--card-bg); border-radius: 16px; padding: 16px; display: flex; align-items: flex-start; box-shadow: 0 2px 10px rgba(0,0,0,0.02); border: 1px solid #f0f0f0; transition: 0.2s; }
         .task-card.completed { opacity: 0.6; }
         .task-card.overdue { border: 1px solid #ffe5e5; }
         
-        .check-circle { width: 24px; height: 24px; border-radius: 50%; border: 2px solid #ddd; margin-right: 16px; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; color: transparent; }
+        .check-circle { width: 24px; height: 24px; border-radius: 50%; border: 2px solid #ddd; margin-right: 16px; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; color: transparent; margin-top: 6px; }
         .completed .check-circle { background: var(--success); border-color: var(--success); color: white; }
 
         .task-content { flex-grow: 1; min-width: 0; }
-        .task-header { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+        .task-header { display: flex; align-items: center; flex-wrap: wrap; gap: 6px; margin-bottom: 6px; }
         
         .tag { padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: 600; }
         .tag-school { background: var(--tag-school-bg); color: var(--tag-school-txt); }
         .tag-other { background: var(--tag-other-bg); color: var(--tag-other-txt); }
+        .tag-teams { background: var(--tag-teams-bg); color: var(--tag-teams-txt); }
+        .tag-sapotal { background: var(--tag-sapotal-bg); color: var(--tag-sapotal-txt); }
         
-        .overdue-badge { color: var(--danger); font-size: 11px; font-weight: bold; display: flex; align-items: center; gap: 4px; }
+        .overdue-badge { color: var(--danger); font-size: 11px; font-weight: bold; display: flex; align-items: center; gap: 4px; margin-left: 4px; }
         
         .task-title { font-size: 16px; font-weight: 700; margin: 0 0 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
         .completed .task-title { text-decoration: line-through; }
         
-        .task-footer { font-size: 12px; color: var(--text-sub); display: flex; align-items: center; gap: 10px; }
+        .task-footer { font-size: 13px; color: var(--text-sub); display: flex; align-items: center; gap: 10px; margin-bottom: 2px; }
         
-        .task-actions { display: flex; flex-direction: column; gap: 12px; margin-left: 10px; color: #c7c7cc; }
+        /* メモのデザイン（画像3枚目風） */
+        .task-memo-box { background: #f2f2f7; padding: 10px 14px; border-radius: 8px; font-size: 13px; color: var(--text-main); margin-top: 10px; word-wrap: break-word; white-space: pre-wrap; }
+
+        .task-actions { display: flex; flex-direction: column; gap: 12px; margin-left: 10px; color: #c7c7cc; margin-top: 6px; }
         .task-actions i { cursor: pointer; padding: 4px; }
 
-        /* モーダル (画像2枚目風) */
+        /* モーダル */
         .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.4); display: none; justify-content: center; align-items: flex-end; z-index: 1000; }
-        .modal { background: white; width: 100%; border-radius: 24px 24px 0 0; padding: 24px; box-sizing: border-box; padding-bottom: calc(24px + env(safe-area-inset-bottom)); transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.1, 1, 0.2, 1); }
+        .modal { background: white; width: 100%; border-radius: 24px 24px 0 0; padding: 24px; box-sizing: border-box; padding-bottom: calc(24px + env(safe-area-inset-bottom)); transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.1, 1, 0.2, 1); max-height: 90vh; overflow-y: auto; }
         .modal.show { transform: translateY(0); }
         .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
         .modal-header h2 { margin: 0; font-size: 18px; font-weight: 700; }
         .close-btn { background: none; border: none; font-size: 20px; color: var(--text-sub); cursor: pointer; }
 
+        .form-row { display: flex; gap: 12px; margin-bottom: 16px; }
+        .form-row .form-group { flex: 1; margin-bottom: 0; }
+        
         .form-group { margin-bottom: 16px; }
         .form-group label { display: block; font-size: 12px; color: var(--text-sub); margin-bottom: 6px; font-weight: 600; }
-        .form-control { width: 100%; padding: 12px 14px; border: 1px solid #e5e5ea; border-radius: 10px; font-size: 15px; box-sizing: border-box; background: #fafafa; }
+        .form-control { width: 100%; padding: 12px 14px; border: 1px solid #e5e5ea; border-radius: 10px; font-size: 15px; box-sizing: border-box; background: #fafafa; appearance: none; }
         .form-control:focus { outline: none; border-color: var(--primary); background: white; }
-        textarea.form-control { resize: none; height: 80px; }
+        textarea.form-control { resize: none; height: 70px; }
+
+        select.form-control { background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2386868b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e"); background-repeat: no-repeat; background-position: right 12px center; background-size: 16px; padding-right: 40px; }
 
         /* スイッチボタン */
         .switch-group { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; }
@@ -98,9 +109,7 @@
         <button class="add-btn" onclick="openModal()"><i class="fa-regular fa-calendar-plus"></i></button>
     </div>
 
-    <div class="task-list" id="taskList">
-        <!-- タスクがここに追加されます -->
-    </div>
+    <div class="task-list" id="taskList"></div>
 
     <!-- 入力モーダル -->
     <div class="modal-overlay" id="modalOverlay" onclick="closeModal(event)">
@@ -112,12 +121,23 @@
             
             <input type="hidden" id="editId">
             
-            <div class="form-group">
-                <label>種類</label>
-                <select id="taskType" class="form-control">
-                    <option value="school">学校の予定</option>
-                    <option value="other">それ以外</option>
-                </select>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>種類</label>
+                    <select id="taskType" class="form-control">
+                        <option value="school">学校の予定</option>
+                        <option value="other">それ以外</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>提出先</label>
+                    <select id="taskDestination" class="form-control">
+                        <option value="none">なし</option>
+                        <option value="teams">Teams</option>
+                        <option value="sapotal">サポータル</option>
+                        <option value="other">その他</option>
+                    </select>
+                </div>
             </div>
 
             <div class="form-group">
@@ -162,15 +182,13 @@
             today.setHours(0, 0, 0, 0);
             const deadline = new Date(dateStr);
             const diffTime = today - deadline;
-            const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-            return diffDays;
+            return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
         }
 
         function renderTasks() {
             const list = document.getElementById('taskList');
             list.innerHTML = '';
 
-            // 期限が近い順（未完了が上、完了済みは下）に並び替え
             tasks.sort((a, b) => {
                 if (a.completed !== b.completed) return a.completed ? 1 : -1;
                 return new Date(a.deadline) - new Date(b.deadline);
@@ -183,13 +201,28 @@
                 const typeLabel = task.type === 'school' ? '学校の予定' : 'それ以外';
                 const typeClass = task.type === 'school' ? 'tag-school' : 'tag-other';
                 
+                // 提出先のタグ生成
+                let destHtml = '';
+                if (task.destination && task.destination !== 'none') {
+                    const destLabel = task.destination === 'teams' ? 'Teams' : 
+                                      task.destination === 'sapotal' ? 'サポータル' : 'その他';
+                    const destClass = task.destination === 'teams' ? 'tag-teams' : 
+                                      task.destination === 'sapotal' ? 'tag-sapotal' : 'tag-other';
+                    destHtml = `<span class="tag ${destClass}">${destLabel}</span>`;
+                }
+
                 let overdueHtml = '';
                 if (isOverdue) {
                     overdueHtml = `<span class="overdue-badge"><i class="fa-regular fa-clock"></i> ${overdueDays}日超過</span>`;
                 }
 
-                const memoIcon = task.memo ? `<i class="fa-regular fa-note-sticky" style="margin-left: 8px;"></i>` : '';
                 const repeatIcon = task.repeat ? `<i class="fa-solid fa-repeat" style="margin-left: 4px; color: var(--primary);"></i>` : '';
+
+                // 画像3枚目のようなメモボックス
+                let memoHtml = '';
+                if (task.memo) {
+                    memoHtml = `<div class="task-memo-box">${task.memo}</div>`;
+                }
 
                 list.innerHTML += `
                     <div class="task-card ${task.completed ? 'completed' : ''} ${isOverdue ? 'overdue' : ''}">
@@ -199,12 +232,14 @@
                         <div class="task-content">
                             <div class="task-header">
                                 <span class="tag ${typeClass}">${typeLabel}</span>
+                                ${destHtml}
                                 ${overdueHtml}
                             </div>
                             <h3 class="task-title">${task.title}</h3>
                             <div class="task-footer">
-                                ${task.deadline} ${memoIcon} ${repeatIcon}
+                                ${task.deadline} ${repeatIcon}
                             </div>
+                            ${memoHtml}
                         </div>
                         <div class="task-actions">
                             <i class="fa-regular fa-pen-to-square" onclick="editTask('${task.id}')"></i>
@@ -219,18 +254,17 @@
             const task = tasks.find(t => t.id === id);
             task.completed = !task.completed;
 
-            // 完了時に「繰り返す」設定がオンの場合、来週のタスクを自動生成する
             if (task.completed && task.repeat) {
                 const nextDate = new Date(task.deadline);
                 nextDate.setDate(nextDate.getDate() + 7);
                 const nextDateStr = nextDate.toISOString().split('T')[0];
 
-                // 現在のタスクのリピートをオフにして、重複生成を防ぐ
                 task.repeat = false;
 
                 tasks.push({
                     id: Date.now().toString(),
                     type: task.type,
+                    destination: task.destination,
                     title: task.title,
                     deadline: nextDateStr,
                     memo: task.memo,
@@ -247,6 +281,7 @@
         function saveTask() {
             const id = document.getElementById('editId').value;
             const type = document.getElementById('taskType').value;
+            const destination = document.getElementById('taskDestination').value;
             const title = document.getElementById('taskTitle').value;
             const deadline = document.getElementById('taskDeadline').value;
             const memo = document.getElementById('taskMemo').value;
@@ -258,14 +293,12 @@
             }
 
             if (id) {
-                // 更新
                 const taskIndex = tasks.findIndex(t => t.id === id);
-                tasks[taskIndex] = { ...tasks[taskIndex], type, title, deadline, memo, repeat };
+                tasks[taskIndex] = { ...tasks[taskIndex], type, destination, title, deadline, memo, repeat };
             } else {
-                // 新規作成
                 tasks.push({
                     id: Date.now().toString(),
-                    type, title, deadline, memo, repeat,
+                    type, destination, title, deadline, memo, repeat,
                     completed: false
                 });
             }
@@ -279,6 +312,7 @@
             const task = tasks.find(t => t.id === id);
             document.getElementById('editId').value = task.id;
             document.getElementById('taskType').value = task.type;
+            document.getElementById('taskDestination').value = task.destination || 'none';
             document.getElementById('taskTitle').value = task.title;
             document.getElementById('taskDeadline').value = task.deadline;
             document.getElementById('taskMemo').value = task.memo || '';
@@ -296,7 +330,6 @@
             }
         }
 
-        /* モーダル開閉処理 */
         function openModal() {
             document.getElementById('modalOverlay').style.display = 'flex';
             setTimeout(() => {
@@ -309,17 +342,16 @@
             document.getElementById('modal').classList.remove('show');
             setTimeout(() => {
                 document.getElementById('modalOverlay').style.display = 'none';
-                // フォームリセット
                 document.getElementById('editId').value = '';
                 document.getElementById('taskTitle').value = '';
                 document.getElementById('taskDeadline').value = '';
                 document.getElementById('taskMemo').value = '';
+                document.getElementById('taskDestination').value = 'none';
                 document.getElementById('taskRepeat').checked = false;
                 document.getElementById('modalTitle').innerText = 'タスクを追加';
             }, 300);
         }
 
-        // 初期表示
         window.onload = renderTasks;
     </script>
 </body>
